@@ -23,9 +23,9 @@
 
 **Purpose**: Project initialization and directory structure
 
-- [ ] T001 Create project directory structure per plan.md: `agent/`, `agent/tools/`, `database/`, `database/migrations/`, `tests/`, `tests/test_tools/`
-- [ ] T002 Initialize Python project with pyproject.toml — dependencies: openai-agents, asyncpg, openai, pydantic, python-dotenv, pytest, pytest-asyncio
-- [ ] T003 [P] Create .env.example with DATABASE_URL and OPENAI_API_KEY placeholders and inline comments
+- [X] T001 Create project directory structure per plan.md: `agent/`, `agent/tools/`, `database/`, `database/migrations/`, `tests/`, `tests/test_tools/`
+- [X] T002 Initialize Python project with pyproject.toml — dependencies: openai-agents, asyncpg, openai, pydantic, python-dotenv, pytest, pytest-asyncio
+- [X] T003 [P] Create .env.example with DATABASE_URL and OPENAI_API_KEY placeholders and inline comments
 
 ---
 
