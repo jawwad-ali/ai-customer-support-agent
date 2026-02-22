@@ -122,8 +122,8 @@
 
 ### Implementation for User Story 5
 
-- [ ] T026 [P] [US5] Implement log_metric in agent/tools/metrics.py — best-effort insert into agent_metrics table, never fails fatally — per tool-contracts.md
-- [ ] T027 [US5] Register log_metric tool in agent/tools/__init__.py and agent/customer_success_agent.py, verify the agent calls it after every interaction (resolved and escalated paths) (depends on T026)
+- [X] T026 [P] [US5] Implement log_metric in agent/tools/metrics.py — best-effort insert into agent_metrics table, never fails fatally — per tool-contracts.md
+- [X] T027 [US5] Register log_metric tool in agent/tools/__init__.py and agent/customer_success_agent.py, verify the agent calls it after every interaction (resolved and escalated paths) (depends on T026)
 
 **Checkpoint**: US5 complete. Metrics logged for every interaction. Validates SC-007.
 
