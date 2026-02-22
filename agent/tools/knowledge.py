@@ -39,19 +39,23 @@ async def search_knowledge_base(
         return json.dumps({"error": "knowledge base search unavailable"})
 
     # 2. Cosine similarity search — only results >= threshold
-    async with pool.acquire() as conn:
-        rows = await conn.fetch(
-            "SELECT id, title, content, category, "
-            "  1 - (embedding <=> $1) AS similarity "
-            "FROM knowledge_base "
-            "WHERE embedding IS NOT NULL "
-            "  AND 1 - (embedding <=> $1) >= $2 "
-            "ORDER BY embedding <=> $1 "
-            "LIMIT $3",
-            query_embedding,
-            _SIMILARITY_THRESHOLD,
-            top_k,
-        )
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT id, title, content, category, "
+                "  1 - (embedding <=> $1) AS similarity "
+                "FROM knowledge_base "
+                "WHERE embedding IS NOT NULL "
+                "  AND 1 - (embedding <=> $1) >= $2 "
+                "ORDER BY embedding <=> $1 "
+                "LIMIT $3",
+                query_embedding,
+                _SIMILARITY_THRESHOLD,
+                top_k,
+            )
+    except Exception:
+        logger.exception("KB similarity query failed")
+        return json.dumps({"error": "knowledge base search unavailable"})
 
     results = [
         {

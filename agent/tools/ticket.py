@@ -38,35 +38,39 @@ async def create_ticket(
     """
     pool = ctx.context.db_pool
 
-    async with pool.acquire() as conn:
-        async with conn.transaction():
-            ticket_id = await conn.fetchval(
-                "INSERT INTO tickets (customer_id, channel, category, priority) "
-                "VALUES ($1, $2, $3, $4) RETURNING id",
-                customer_id,
-                channel,
-                category,
-                priority,
-            )
+    try:
+        async with pool.acquire() as conn:
+            async with conn.transaction():
+                ticket_id = await conn.fetchval(
+                    "INSERT INTO tickets (customer_id, channel, category, priority) "
+                    "VALUES ($1, $2, $3, $4) RETURNING id",
+                    customer_id,
+                    channel,
+                    category,
+                    priority,
+                )
 
-            conversation_id = await conn.fetchval(
-                "INSERT INTO conversations (ticket_id, customer_id, channel) "
-                "VALUES ($1, $2, $3) RETURNING id",
-                ticket_id,
-                customer_id,
-                channel,
-            )
+                conversation_id = await conn.fetchval(
+                    "INSERT INTO conversations (ticket_id, customer_id, channel) "
+                    "VALUES ($1, $2, $3) RETURNING id",
+                    ticket_id,
+                    customer_id,
+                    channel,
+                )
 
-    logger.info("Created ticket %s with conversation %s", ticket_id, conversation_id)
+        logger.info("Created ticket %s with conversation %s", ticket_id, conversation_id)
 
-    return json.dumps(
-        {
-            "ticket_id": str(ticket_id),
-            "conversation_id": str(conversation_id),
-            "status": "open",
-        },
-        default=str,
-    )
+        return json.dumps(
+            {
+                "ticket_id": str(ticket_id),
+                "conversation_id": str(conversation_id),
+                "status": "open",
+            },
+            default=str,
+        )
+    except Exception:
+        logger.exception("Failed to create ticket for customer %s", customer_id)
+        return json.dumps({"error": "ticket creation failed — please try again"})
 
 
 @function_tool
@@ -87,45 +91,49 @@ async def update_ticket(
     """
     pool = ctx.context.db_pool
 
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow(
-            "SELECT status FROM tickets WHERE id = $1",
-            ticket_id,
-        )
-        if not row:
-            return json.dumps({"error": "ticket not found"})
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT status FROM tickets WHERE id = $1",
+                ticket_id,
+            )
+            if not row:
+                return json.dumps({"error": "ticket not found"})
 
-        old_status: str = row["status"]
+            old_status: str = row["status"]
 
-        if status not in _VALID_TRANSITIONS.get(old_status, set()):
-            return json.dumps(
-                {
-                    "error": "invalid status transition",
-                    "detail": f"cannot move from '{old_status}' to '{status}'",
-                }
+            if status not in _VALID_TRANSITIONS.get(old_status, set()):
+                return json.dumps(
+                    {
+                        "error": "invalid status transition",
+                        "detail": f"cannot move from '{old_status}' to '{status}'",
+                    }
+                )
+
+            updated_at = await conn.fetchval(
+                "UPDATE tickets "
+                "SET status = $1, resolution_notes = $2, escalation_reason = $3, updated_at = now() "
+                "WHERE id = $4 RETURNING updated_at",
+                status,
+                resolution_notes,
+                escalation_reason,
+                ticket_id,
             )
 
-        updated_at = await conn.fetchval(
-            "UPDATE tickets "
-            "SET status = $1, resolution_notes = $2, escalation_reason = $3, updated_at = now() "
-            "WHERE id = $4 RETURNING updated_at",
-            status,
-            resolution_notes,
-            escalation_reason,
-            ticket_id,
+        logger.info("Ticket %s: %s -> %s", ticket_id, old_status, status)
+
+        return json.dumps(
+            {
+                "ticket_id": str(ticket_id),
+                "old_status": old_status,
+                "new_status": status,
+                "updated_at": str(updated_at),
+            },
+            default=str,
         )
-
-    logger.info("Ticket %s: %s -> %s", ticket_id, old_status, status)
-
-    return json.dumps(
-        {
-            "ticket_id": str(ticket_id),
-            "old_status": old_status,
-            "new_status": status,
-            "updated_at": str(updated_at),
-        },
-        default=str,
-    )
+    except Exception:
+        logger.exception("Failed to update ticket %s", ticket_id)
+        return json.dumps({"error": "ticket update failed — please try again"})
 
 
 @function_tool
@@ -140,36 +148,40 @@ async def get_ticket(
     """
     pool = ctx.context.db_pool
 
-    async with pool.acquire() as conn:
-        ticket = await conn.fetchrow(
-            "SELECT id, customer_id, channel, category, priority, status, "
-            "escalation_reason, resolution_notes, parent_ticket_id, created_at, updated_at "
-            "FROM tickets WHERE id = $1",
-            ticket_id,
-        )
-        if not ticket:
-            return json.dumps({"error": "ticket not found"})
-
-        conversation = await conn.fetchrow(
-            "SELECT id, ticket_id, customer_id, channel, created_at "
-            "FROM conversations WHERE ticket_id = $1",
-            ticket_id,
-        )
-
-        messages: list[dict] = []
-        if conversation:
-            rows = await conn.fetch(
-                "SELECT id, direction, channel, content, sentiment, created_at "
-                "FROM messages WHERE conversation_id = $1 ORDER BY created_at",
-                conversation["id"],
+    try:
+        async with pool.acquire() as conn:
+            ticket = await conn.fetchrow(
+                "SELECT id, customer_id, channel, category, priority, status, "
+                "escalation_reason, resolution_notes, parent_ticket_id, created_at, updated_at "
+                "FROM tickets WHERE id = $1",
+                ticket_id,
             )
-            messages = [dict(r) for r in rows]
+            if not ticket:
+                return json.dumps({"error": "ticket not found"})
 
-        return json.dumps(
-            {
-                "ticket": dict(ticket),
-                "conversation": dict(conversation) if conversation else None,
-                "messages": messages,
-            },
-            default=str,
-        )
+            conversation = await conn.fetchrow(
+                "SELECT id, ticket_id, customer_id, channel, created_at "
+                "FROM conversations WHERE ticket_id = $1",
+                ticket_id,
+            )
+
+            messages: list[dict] = []
+            if conversation:
+                rows = await conn.fetch(
+                    "SELECT id, direction, channel, content, sentiment, created_at "
+                    "FROM messages WHERE conversation_id = $1 ORDER BY created_at",
+                    conversation["id"],
+                )
+                messages = [dict(r) for r in rows]
+
+            return json.dumps(
+                {
+                    "ticket": dict(ticket),
+                    "conversation": dict(conversation) if conversation else None,
+                    "messages": messages,
+                },
+                default=str,
+            )
+    except Exception:
+        logger.exception("Failed to fetch ticket %s", ticket_id)
+        return json.dumps({"error": "ticket lookup failed — please try again"})

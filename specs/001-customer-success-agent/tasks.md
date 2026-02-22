@@ -133,10 +133,10 @@
 
 **Purpose**: Error handling audit, documentation, and full validation
 
-- [ ] T028 [P] Audit error handling across all 11 tools — verify every tool has try/except with structured logging, graceful fallback message, and correlation IDs
-- [ ] T029 [P] Verify .env.example is complete with all required variables (DATABASE_URL, OPENAI_API_KEY) and inline documentation for each
-- [ ] T030 Validate quickstart.md end-to-end — fresh setup: install deps, run migrations, seed KB, execute smoke test via agent/__main__.py
-- [ ] T031 Run full acceptance validation against all 10 success criteria (SC-001 through SC-010) — document pass/fail for each
+- [X] T028 [P] Audit error handling across all 11 tools — verify every tool has try/except with structured logging, graceful fallback message, and correlation IDs
+- [X] T029 [P] Verify .env.example is complete with all required variables (DATABASE_URL, OPENAI_API_KEY) and inline documentation for each
+- [X] T030 Validate quickstart.md end-to-end — fresh setup: install deps, run migrations, seed KB, execute smoke test via agent/__main__.py
+- [X] T031 Run full acceptance validation against all 10 success criteria (SC-001 through SC-010) — document pass/fail for each
 
 ---
 

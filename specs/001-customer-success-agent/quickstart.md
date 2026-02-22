@@ -14,7 +14,8 @@
 
 ```bash
 git checkout 001-customer-success-agent
-pip install openai-agents asyncpg openai python-dotenv pydantic
+python -m venv .venv && .venv/Scripts/activate  # or source .venv/bin/activate on Linux/Mac
+pip install -e ".[dev]"
 ```
 
 ### 2. Configure environment
@@ -38,8 +39,8 @@ OPENAI_API_KEY=sk-...
 # Apply schema
 psql "$DATABASE_URL" -f database/migrations/001_initial_schema.sql
 
-# Seed knowledge base
-python database/migrations/002_seed_knowledge_base.py
+# Seed knowledge base (generates embeddings via OpenAI)
+python -m database.migrations.002_seed_knowledge_base
 ```
 
 ### 4. Verify setup
@@ -49,7 +50,7 @@ python database/migrations/002_seed_knowledge_base.py
 pytest tests/ -v
 
 # Quick smoke test
-python -m agent.customer_success_agent "How do I reset my password?"
+python -m agent "How do I reset my password?" --email alice@example.com
 ```
 
 ## Project Structure

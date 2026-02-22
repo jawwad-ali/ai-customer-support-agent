@@ -40,26 +40,30 @@ async def save_message(
     pool = ctx.context.db_pool
     sentiment = _clamp_sentiment(sentiment)
 
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow(
-            "INSERT INTO messages (conversation_id, direction, channel, content, sentiment) "
-            "VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at",
-            conversation_id,
-            direction,
-            channel,
-            content,
-            sentiment,
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "INSERT INTO messages (conversation_id, direction, channel, content, sentiment) "
+                "VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at",
+                conversation_id,
+                direction,
+                channel,
+                content,
+                sentiment,
+            )
+
+        logger.info("Saved %s message %s in conversation %s", direction, row["id"], conversation_id)
+
+        return json.dumps(
+            {
+                "message_id": str(row["id"]),
+                "created_at": str(row["created_at"]),
+            },
+            default=str,
         )
-
-    logger.info("Saved %s message %s in conversation %s", direction, row["id"], conversation_id)
-
-    return json.dumps(
-        {
-            "message_id": str(row["id"]),
-            "created_at": str(row["created_at"]),
-        },
-        default=str,
-    )
+    except Exception:
+        logger.exception("Failed to save message in conversation %s", conversation_id)
+        return json.dumps({"error": "message save failed — please try again"})
 
 
 @function_tool
@@ -74,22 +78,26 @@ async def get_conversation_messages(
     """
     pool = ctx.context.db_pool
 
-    async with pool.acquire() as conn:
-        # Verify conversation exists
-        exists = await conn.fetchval(
-            "SELECT 1 FROM conversations WHERE id = $1",
-            conversation_id,
-        )
-        if not exists:
-            return json.dumps({"error": "conversation not found"})
+    try:
+        async with pool.acquire() as conn:
+            # Verify conversation exists
+            exists = await conn.fetchval(
+                "SELECT 1 FROM conversations WHERE id = $1",
+                conversation_id,
+            )
+            if not exists:
+                return json.dumps({"error": "conversation not found"})
 
-        rows = await conn.fetch(
-            "SELECT id, direction, channel, content, sentiment, created_at "
-            "FROM messages WHERE conversation_id = $1 ORDER BY created_at",
-            conversation_id,
-        )
+            rows = await conn.fetch(
+                "SELECT id, direction, channel, content, sentiment, created_at "
+                "FROM messages WHERE conversation_id = $1 ORDER BY created_at",
+                conversation_id,
+            )
 
-    return json.dumps(
-        {"messages": [dict(r) for r in rows]},
-        default=str,
-    )
+        return json.dumps(
+            {"messages": [dict(r) for r in rows]},
+            default=str,
+        )
+    except Exception:
+        logger.exception("Failed to fetch messages for conversation %s", conversation_id)
+        return json.dumps({"error": "conversation messages unavailable — please try again"})
