@@ -35,12 +35,12 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Write 001_initial_schema.sql in database/migrations/ — all 8 tables (customers, customer_identifiers, conversations, messages, tickets, knowledge_base, channel_configs, agent_metrics), pgvector extension, all indexes, CHECK constraints, foreign keys, and channel_configs seed data per data-model.md
-- [ ] T005 [P] Implement asyncpg connection pool with pgvector vector codec registration in database/pool.py — create_pool() from DATABASE_URL env var, min_size=5, max_size=20, init callback for vector codec
-- [ ] T006 [P] Create AgentContext dataclass in agent/context.py — holds asyncpg.Pool and openai.AsyncOpenAI client, loaded from environment variables
-- [ ] T007 [P] Write production system prompt with all guardrails in agent/prompts.py — rules: always create ticket before responding, check sentiment < 0.3 for escalation, never discuss competitors, never promise undocumented features, use channel-appropriate tone, escalate when KB has no match
-- [ ] T008 [P] Configure structured JSON logging in agent/__init__.py — Python logging with JSON formatter, correlation ID support, no print() statements
-- [ ] T009 Write 002_seed_knowledge_base.py in database/migrations/ — Python script that generates embeddings via OpenAI text-embedding-3-small and inserts 15+ articles covering: getting-started, account management, billing FAQ, troubleshooting, feature how-tos, notification settings, password reset, integrations, API docs, security, data export
+- [X] T004 Write 001_initial_schema.sql in database/migrations/ — all 8 tables (customers, customer_identifiers, conversations, messages, tickets, knowledge_base, channel_configs, agent_metrics), pgvector extension, all indexes, CHECK constraints, foreign keys, and channel_configs seed data per data-model.md
+- [X] T005 [P] Implement asyncpg connection pool with pgvector vector codec registration in database/pool.py — create_pool() from DATABASE_URL env var, min_size=5, max_size=20, init callback for vector codec
+- [X] T006 [P] Create AgentContext dataclass in agent/context.py — holds asyncpg.Pool and openai.AsyncOpenAI client, loaded from environment variables
+- [X] T007 [P] Write production system prompt with all guardrails in agent/prompts.py — rules: always create ticket before responding, check sentiment < 0.3 for escalation, never discuss competitors, never promise undocumented features, use channel-appropriate tone, escalate when KB has no match
+- [X] T008 [P] Configure structured JSON logging in agent/__init__.py — Python logging with JSON formatter, correlation ID support, no print() statements
+- [X] T009 Write 002_seed_knowledge_base.py in database/migrations/ — Python script that generates embeddings via OpenAI text-embedding-3-small and inserts 15+ articles covering: getting-started, account management, billing FAQ, troubleshooting, feature how-tos, notification settings, password reset, integrations, API docs, security, data export
 
 **Checkpoint**: Foundation ready — database schema deployed, pool configured, agent context and prompt defined. User story implementation can begin.
 
