@@ -144,6 +144,15 @@ async def get_customer_history(
             customer_id,
         )
 
+        # Group conversations by channel for cross-channel visibility
+        conversations_list = [
+            {**dict(r), "id": str(r["id"]), "created_at": str(r["created_at"])}
+            for r in conversations
+        ]
+        by_channel: dict[str, list] = {}
+        for conv in conversations_list:
+            by_channel.setdefault(conv["channel"], []).append(conv)
+
         return json.dumps(
             {
                 "customer": {
@@ -152,10 +161,8 @@ async def get_customer_history(
                     "created_at": str(customer["created_at"]),
                 },
                 "identifiers": [dict(r) for r in identifiers],
-                "conversations": [
-                    {**dict(r), "id": str(r["id"]), "created_at": str(r["created_at"])}
-                    for r in conversations
-                ],
+                "conversations": conversations_list,
+                "conversations_by_channel": by_channel,
                 "tickets": [
                     {**dict(r), "id": str(r["id"]), "created_at": str(r["created_at"])}
                     for r in tickets

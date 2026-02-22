@@ -91,9 +91,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Enhance find_or_create_customer with identity linking — add link_to_identifier_value parameter: when provided, find existing customer by that value and attach the new identifier to their record in agent/tools/customer.py (depends on T010)
-- [ ] T022 [US3] Enhance get_customer_history to include cross-channel conversation details — return conversations grouped by channel with message counts in agent/tools/customer.py (depends on T010)
-- [ ] T023 [US3] Validate cross-channel: create customer via email on web, link phone number, query history — both channel conversations appear under one customer record (depends on T021, T022)
+- [X] T021 [US3] Enhance find_or_create_customer with identity linking — add link_to_identifier_value parameter: when provided, find existing customer by that value and attach the new identifier to their record in agent/tools/customer.py (depends on T010)
+- [X] T022 [US3] Enhance get_customer_history to include cross-channel conversation details — return conversations grouped by channel with message counts in agent/tools/customer.py (depends on T010)
+- [X] T023 [US3] Validate cross-channel: create customer via email on web, link phone number, query history — both channel conversations appear under one customer record (depends on T021, T022)
 
 **Checkpoint**: US3 complete. Cross-channel identity works. Validates SC-002.
 
