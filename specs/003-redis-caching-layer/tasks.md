@@ -34,11 +34,11 @@
 - [x] T004 Create `agent/cache.py` with TTL constants (`TTL_KB_SEARCH=3600`, `TTL_CHANNEL_CONFIG=86400`, `TTL_CUSTOMER_LOOKUP=3600`), key prefix `_PREFIX="crm:"`, and `create_redis_client()` function per `contracts/cache-contracts.md`
 - [x] T005 Add `get_cached()` and `set_cached()` functions to `agent/cache.py` with JSON serialization, prefix handling, and graceful exception handling per contracts
 - [x] T006 Add `invalidate()` and `invalidate_pattern()` functions to `agent/cache.py` with SCAN-based pattern delete per contracts
-- [ ] T007 Add key helper functions to `agent/cache.py`: `make_kb_cache_key()` (SHA-256 hash of normalized query), `make_channel_config_key()`, `make_customer_lookup_key()` per contracts
-- [ ] T008 Add `redis_client: redis.asyncio.Redis | None = None` field to `AgentContext` dataclass and call `create_redis_client()` in `build_context()` in `agent/context.py`
-- [ ] T009 Add Redis `aclose()` to FastAPI lifespan shutdown (guarded by `if is not None`) in `api/main.py`
-- [ ] T010 Add `mock_redis` fixture (fakeredis), `agent_context_with_cache` fixture, and `tool_ctx_with_cache` fixture to `tests/conftest.py`
-- [ ] T011 Create `tests/test_cache/__init__.py` (empty) and `tests/test_cache/test_cache.py` with unit tests: key generation (deterministic, normalized, different top_k), get/set (hit, miss, None client, TTL), invalidate (single, multiple, pattern, None client), graceful failure (broken client)
+- [x] T007 Add key helper functions to `agent/cache.py`: `make_kb_cache_key()` (SHA-256 hash of normalized query), `make_channel_config_key()`, `make_customer_lookup_key()` per contracts
+- [x] T008 Add `redis_client: redis.asyncio.Redis | None = None` field to `AgentContext` dataclass and call `create_redis_client()` in `build_context()` in `agent/context.py`
+- [x] T009 Add Redis `aclose()` to FastAPI lifespan shutdown (guarded by `if is not None`) in `api/main.py`
+- [x] T010 Add `mock_redis` fixture (fakeredis), `agent_context_with_cache` fixture, and `tool_ctx_with_cache` fixture to `tests/conftest.py`
+- [x] T011 Create `tests/test_cache/__init__.py` (empty) and `tests/test_cache/test_cache.py` with unit tests: key generation (deterministic, normalized, different top_k), get/set (hit, miss, None client, TTL), invalidate (single, multiple, pattern, None client), graceful failure (broken client)
 
 **Checkpoint**: Cache utility module complete, tested in isolation, existing 119 tests still pass
 

@@ -137,3 +137,23 @@ async def invalidate_pattern(
         logger.warning(
             "Cache pattern invalidate failed — %s", pattern, exc_info=True
         )
+
+
+# ---------------------------------------------------------------------------
+# Key helpers
+# ---------------------------------------------------------------------------
+def make_kb_cache_key(query: str, top_k: int = 3) -> str:
+    """Return ``kb:search:{sha256[:16]}`` from normalized query + top_k."""
+    normalized = f"{query.strip().lower()}|{top_k}"
+    digest = hashlib.sha256(normalized.encode()).hexdigest()[:16]
+    return f"kb:search:{digest}"
+
+
+def make_channel_config_key(channel: str) -> str:
+    """Return ``channel_config:{channel}``."""
+    return f"channel_config:{channel}"
+
+
+def make_customer_lookup_key(identifier_type: str, identifier_value: str) -> str:
+    """Return ``customer:lookup:{identifier_type}:{identifier_value}``."""
+    return f"customer:lookup:{identifier_type}:{identifier_value}"
