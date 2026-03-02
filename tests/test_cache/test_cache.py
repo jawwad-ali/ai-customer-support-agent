@@ -203,3 +203,21 @@ class TestGracefulFailure:
         broken.scan = AsyncMock(side_effect=ConnectionError("Redis down"))
         await invalidate_pattern(broken, "kb:*")
         # No exception = success
+
+    async def test_get_closed_client(self, mock_redis):
+        """get_cached returns None after Redis client is closed."""
+        await mock_redis.aclose()
+        result = await get_cached(mock_redis, "any:key")
+        assert result is None
+
+    async def test_set_closed_client(self, mock_redis):
+        """set_cached no-ops after Redis client is closed."""
+        await mock_redis.aclose()
+        await set_cached(mock_redis, "any:key", {"v": 1}, ttl=60)
+        # No exception = success
+
+    async def test_invalidate_closed_client(self, mock_redis):
+        """invalidate no-ops after Redis client is closed."""
+        await mock_redis.aclose()
+        await invalidate(mock_redis, "any:key")
+        # No exception = success

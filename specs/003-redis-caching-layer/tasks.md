@@ -52,8 +52,8 @@
 
 ### Implementation
 
-- [ ] T012 [US1] Add cache check (before embedding call) and cache store (after DB query, for both "found" and "no_match") to `search_knowledge_base()` in `agent/tools/knowledge.py` using `make_kb_cache_key()`, `get_cached()`, `set_cached()` with `TTL_KB_SEARCH`
-- [ ] T013 [US1] Add cache-hit test to `tests/test_tools/test_knowledge.py`: verify second call with same query uses cache (mock OpenAI and DB not called on cache hit)
+- [x] T012 [US1] Add cache check (before embedding call) and cache store (after DB query, for both "found" and "no_match") to `search_knowledge_base()` in `agent/tools/knowledge.py` using `make_kb_cache_key()`, `get_cached()`, `set_cached()` with `TTL_KB_SEARCH`
+- [x] T013 [US1] Add cache-hit test to `tests/test_tools/test_knowledge.py`: verify second call with same query uses cache (mock OpenAI and DB not called on cache hit)
 
 **Checkpoint**: KB search caching works — repeated questions skip embedding API + vector search
 
@@ -67,8 +67,8 @@
 
 ### Implementation
 
-- [ ] T014 [US2] Verify all existing tests pass with `redis_client=None` (default) — no code changes expected, just run `pytest tests/` and confirm 119+ tests pass
-- [ ] T015 [US2] Add graceful fallback test to `tests/test_cache/test_cache.py`: verify `get_cached()` returns None and `set_cached()` no-ops when client is closed/broken — no exceptions raised
+- [x] T014 [US2] Verify all existing tests pass with `redis_client=None` (default) — no code changes expected, just run `pytest tests/` and confirm 119+ tests pass
+- [x] T015 [US2] Add graceful fallback test to `tests/test_cache/test_cache.py`: verify `get_cached()` returns None and `set_cached()` no-ops when client is closed/broken — no exceptions raised
 
 **Checkpoint**: Graceful degradation confirmed — cache unavailability causes zero failures
 
