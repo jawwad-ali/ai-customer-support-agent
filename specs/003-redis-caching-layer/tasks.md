@@ -82,8 +82,8 @@
 
 ### Implementation
 
-- [ ] T016 [US3] Add cache check and cache store for channel config lookup in `send_response()` in `agent/tools/response.py` using `make_channel_config_key()`, `get_cached()`, `set_cached()` with `TTL_CHANNEL_CONFIG`
-- [ ] T017 [US3] Add cache-hit test to `tests/test_tools/test_response.py`: verify second call with same channel uses cached config (DB fetchrow not called on cache hit)
+- [x] T016 [US3] Add cache check and cache store for channel config lookup in `send_response()` in `agent/tools/response.py` using `make_channel_config_key()`, `get_cached()`, `set_cached()` with `TTL_CHANNEL_CONFIG`
+- [x] T017 [US3] Add cache-hit test to `tests/test_tools/test_response.py`: verify second call with same channel uses cached config (DB fetchrow not called on cache hit)
 
 **Checkpoint**: Channel config caching works — only 3 DB queries total (one per channel) per 24 hours
 
@@ -97,9 +97,9 @@
 
 ### Implementation
 
-- [ ] T018 [US4] Add cache check (before DB query, skip for linking requests) and cache store (after DB result) to `find_or_create_customer()` in `agent/tools/customer.py` using `make_customer_lookup_key()`, `get_cached()`, `set_cached()` with `TTL_CUSTOMER_LOOKUP`
-- [ ] T019 [US4] Add cache invalidation on cross-channel linking path in `find_or_create_customer()` in `agent/tools/customer.py` — set cache for new identifier after link
-- [ ] T020 [US4] Add cache-hit test and cache-invalidation test to `tests/test_tools/test_customer.py`: verify returning customer uses cache, verify linking invalidates stale entry
+- [x] T018 [US4] Add cache check (before DB query, skip for linking requests) and cache store (after DB result) to `find_or_create_customer()` in `agent/tools/customer.py` using `make_customer_lookup_key()`, `get_cached()`, `set_cached()` with `TTL_CUSTOMER_LOOKUP`
+- [x] T019 [US4] Add cache invalidation on cross-channel linking path in `find_or_create_customer()` in `agent/tools/customer.py` — set cache for new identifier after link
+- [x] T020 [US4] Add cache-hit test and cache-invalidation test to `tests/test_tools/test_customer.py`: verify returning customer uses cache, verify linking invalidates stale entry
 
 **Checkpoint**: Customer lookup caching works — returning customers skip 2-3 DB queries per interaction
 
@@ -109,7 +109,7 @@
 
 **Purpose**: Full suite validation and cross-story verification
 
-- [ ] T021 Run full test suite (`pytest tests/ -v`) — verify ALL existing tests pass + ALL new cache tests pass
+- [x] T021 Run full test suite (`pytest tests/ -v`) — verify ALL existing tests pass + ALL new cache tests pass
 - [ ] T022 Run quickstart.md validation: start Redis via Docker, start server, send duplicate question, verify "Cache HIT" in logs
 
 ---
