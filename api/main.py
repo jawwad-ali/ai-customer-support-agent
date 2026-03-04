@@ -7,7 +7,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from agents import RunContextWrapper
 
 from agent import get_correlation_id, set_correlation_id
+from agent.cache import get_job, set_job
 from agent.context import build_context
 from agent.customer_success_agent import run_agent
 from agent.tools.customer import get_customer_history
@@ -106,6 +107,28 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # ---------------------------------------------------------------------------
+# Background task helpers
+# ---------------------------------------------------------------------------
+
+
+async def _process_chat(job_id: str, message: str, ctx) -> None:
+    """Run the agent in the background and store the result as a job."""
+    set_correlation_id(job_id)
+    logger.info("Job %s started — background processing", job_id)
+    try:
+        response = await run_agent(ctx, message)
+        await set_job(ctx.redis_client, job_id, {"status": "completed", "response": response})
+        logger.info("Job %s completed — response stored", job_id)
+    except Exception as exc:
+        logger.exception("Job %s failed — %s", job_id, exc)
+        await set_job(ctx.redis_client, job_id, {
+            "status": "failed",
+            "response": None,
+            "error": "An error occurred while processing your request. Please try again.",
+        })
+
+
+# ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
 
@@ -115,15 +138,34 @@ async def health():
     return {"status": "ok"}
 
 
-@app.post("/api/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest, request: Request):
+@app.post("/api/chat", status_code=202, response_model=JobAccepted)
+async def chat(req: ChatRequest, request: Request, background_tasks: BackgroundTasks):
     cid = set_correlation_id()
     logger.info("Chat request — email=%s channel=%s", req.email, req.channel)
 
+    ctx = request.app.state.agent_ctx
     message = f"[Customer: {req.email}, Channel: {req.channel}] {req.message}"
-    response = await run_agent(request.app.state.agent_ctx, message)
+    await set_job(ctx.redis_client, cid, {"status": "processing"})
+    background_tasks.add_task(_process_chat, cid, message, ctx)
 
-    return ChatResponse(response=response, correlation_id=cid)
+    return JobAccepted(job_id=cid)
+
+
+@app.get("/api/jobs/{job_id}", response_model=JobStatus)
+async def job_status(job_id: str, request: Request):
+    ctx = request.app.state.agent_ctx
+    data = await get_job(ctx.redis_client, job_id)
+    if data is None:
+        return JSONResponse(status_code=404, content={"error": "Job not found"})
+
+    retry = 5 if data.get("status") == "processing" else None
+    return JobStatus(
+        job_id=job_id,
+        status=data["status"],
+        response=data.get("response"),
+        error=data.get("error"),
+        retry_after=retry,
+    )
 
 
 @app.get("/api/tickets/{ticket_id}")

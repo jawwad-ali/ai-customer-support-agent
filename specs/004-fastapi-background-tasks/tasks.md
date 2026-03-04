@@ -35,11 +35,11 @@
 
 ### Implementation
 
-- [ ] T006 [US1] Create `_process_chat(job_id, req, ctx)` async background task function in `api/main.py` — call `set_correlation_id(job_id)`, then `run_agent()`, then `set_job()` with `status=completed` and the response. Wrap in try/except: on failure, `set_job()` with `status=failed` and error message. Log start and completion/failure.
-- [ ] T007 [US1] Refactor `POST /api/chat` endpoint in `api/main.py` — inject `BackgroundTasks` dependency, generate correlation ID, call `set_job()` with `status=processing`, add `_process_chat` to background tasks, return `JobAccepted` with HTTP 202.
-- [ ] T008 [US2] Implement `GET /api/jobs/{job_id}` endpoint in `api/main.py` — call `get_job()`, return 404 if `None`, otherwise return `JobStatus` with `retry_after=5` when processing, `retry_after=None` when completed/failed.
-- [ ] T009 [US1] Update existing `TestChat` tests in `tests/test_api/test_main.py` — change expected status code from 200 to 202, update expected response shape to `JobAccepted` (`job_id`, `status`, `retry_after`). Mock `run_agent` must still be called (via background task). Update validation error tests (those should still return 422).
-- [ ] T010 [US2] Add `TestJobPolling` tests in `tests/test_api/test_main.py` — test job processing status (set a "processing" job, poll, verify response), job completed status, job failed status, job timed out (set `created_at` 6 min ago), job not found (invalid ID returns 404), job expired (no key in Redis returns 404).
+- [x] T006 [US1] Create `_process_chat(job_id, req, ctx)` async background task function in `api/main.py` — call `set_correlation_id(job_id)`, then `run_agent()`, then `set_job()` with `status=completed` and the response. Wrap in try/except: on failure, `set_job()` with `status=failed` and error message. Log start and completion/failure.
+- [x] T007 [US1] Refactor `POST /api/chat` endpoint in `api/main.py` — inject `BackgroundTasks` dependency, generate correlation ID, call `set_job()` with `status=processing`, add `_process_chat` to background tasks, return `JobAccepted` with HTTP 202.
+- [x] T008 [US2] Implement `GET /api/jobs/{job_id}` endpoint in `api/main.py` — call `get_job()`, return 404 if `None`, otherwise return `JobStatus` with `retry_after=5` when processing, `retry_after=None` when completed/failed.
+- [x] T009 [US1] Update existing `TestChat` tests in `tests/test_api/test_main.py` — change expected status code from 200 to 202, update expected response shape to `JobAccepted` (`job_id`, `status`, `retry_after`). Mock `run_agent` must still be called (via background task). Update validation error tests (those should still return 422).
+- [x] T010 [US2] Add `TestJobPolling` tests in `tests/test_api/test_main.py` — test job processing status (set a "processing" job, poll, verify response), job completed status, job failed status, job timed out (set `created_at` 6 min ago), job not found (invalid ID returns 404), job expired (no key in Redis returns 404).
 
 **Checkpoint**: Core async flow works — chat returns instantly, agent runs in background, results retrievable via polling.
 
