@@ -7,7 +7,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -156,17 +156,30 @@ async def health():
     return {"status": "ok"}
 
 
-@app.post("/api/chat", status_code=202, response_model=JobAccepted)
-async def chat(req: ChatRequest, request: Request, background_tasks: BackgroundTasks):
+@app.post("/api/chat")
+async def chat(
+    req: ChatRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    sync: bool = Query(False),
+):
     cid = set_correlation_id()
     logger.info("Chat request — email=%s channel=%s", req.email, req.channel)
 
     ctx = request.app.state.agent_ctx
     message = f"[Customer: {req.email}, Channel: {req.channel}] {req.message}"
+
+    # Sync mode: explicit ?sync=true OR graceful fallback when Redis is unavailable
+    if sync or ctx.redis_client is None:
+        if ctx.redis_client is None and not sync:
+            logger.warning("Redis unavailable — falling back to sync mode")
+        response = await run_agent(ctx, message)
+        return ChatResponse(response=response, correlation_id=cid)
+
+    # Async mode (default)
     await set_job(ctx.redis_client, cid, {"status": "processing"})
     background_tasks.add_task(_process_chat, cid, message, ctx)
-
-    return JobAccepted(job_id=cid)
+    return JSONResponse(status_code=202, content=JobAccepted(job_id=cid).model_dump())
 
 
 @app.get("/api/jobs/{job_id}", response_model=JobStatus)
@@ -214,25 +227,37 @@ async def customer_history(customer_id: str, request: Request):
     return data
 
 
-@app.post("/api/webhooks/gmail", status_code=202, response_model=JobAccepted)
+@app.post("/api/webhooks/gmail")
 async def webhook_gmail(payload: WebhookPayload, request: Request, background_tasks: BackgroundTasks):
     cid = set_correlation_id()
     logger.info("Gmail webhook — from=%s", payload.from_address)
 
     ctx = request.app.state.agent_ctx
+
+    if ctx.redis_client is None:
+        logger.warning("Redis unavailable — falling back to sync mode (gmail)")
+        message = f"[Customer: {payload.from_address}, Channel: gmail] {payload.body}"
+        response = await run_agent(ctx, message)
+        return ChatResponse(response=response, correlation_id=cid)
+
     await set_job(ctx.redis_client, cid, {"status": "processing"})
     background_tasks.add_task(_process_webhook, cid, "gmail", payload.from_address, payload.body, ctx)
+    return JSONResponse(status_code=202, content=JobAccepted(job_id=cid).model_dump())
 
-    return JobAccepted(job_id=cid)
 
-
-@app.post("/api/webhooks/whatsapp", status_code=202, response_model=JobAccepted)
+@app.post("/api/webhooks/whatsapp")
 async def webhook_whatsapp(payload: WebhookPayload, request: Request, background_tasks: BackgroundTasks):
     cid = set_correlation_id()
     logger.info("WhatsApp webhook — from=%s", payload.from_address)
 
     ctx = request.app.state.agent_ctx
+
+    if ctx.redis_client is None:
+        logger.warning("Redis unavailable — falling back to sync mode (whatsapp)")
+        message = f"[Customer: {payload.from_address}, Channel: whatsapp] {payload.body}"
+        response = await run_agent(ctx, message)
+        return ChatResponse(response=response, correlation_id=cid)
+
     await set_job(ctx.redis_client, cid, {"status": "processing"})
     background_tasks.add_task(_process_webhook, cid, "whatsapp", payload.from_address, payload.body, ctx)
-
-    return JobAccepted(job_id=cid)
+    return JSONResponse(status_code=202, content=JobAccepted(job_id=cid).model_dump())

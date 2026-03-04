@@ -324,6 +324,104 @@ class TestWhatsAppWebhook:
 
 
 # ---------------------------------------------------------------------------
+# Sync Mode & Graceful Fallback
+# ---------------------------------------------------------------------------
+
+
+class TestSyncMode:
+    @patch("api.main.run_agent", new_callable=AsyncMock)
+    async def test_sync_true_returns_200(self, mock_run, client: AsyncClient):
+        """?sync=true returns HTTP 200 with ChatResponse (old behavior)."""
+        mock_run.return_value = "Here is your answer."
+
+        resp = await client.post(
+            "/api/chat?sync=true",
+            json={"message": "Hi", "email": "test@test.com"},
+        )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["response"] == "Here is your answer."
+        assert "correlation_id" in data
+
+    @patch("api.main.set_job", new_callable=AsyncMock)
+    @patch("api.main.run_agent", new_callable=AsyncMock)
+    async def test_default_returns_202(self, mock_run, mock_set_job, client: AsyncClient):
+        """Default (no ?sync) returns HTTP 202 with JobAccepted."""
+        mock_run.return_value = "Response"
+
+        resp = await client.post(
+            "/api/chat",
+            json={"message": "Hi", "email": "test@test.com"},
+        )
+
+        assert resp.status_code == 202
+        data = resp.json()
+        assert "job_id" in data
+        assert data["status"] == "processing"
+
+
+class TestGracefulFallback:
+    @pytest.fixture()
+    def _no_redis_ctx(self):
+        """Inject an AgentContext with redis_client=None."""
+        ctx = MagicMock()
+        ctx.db_pool = MagicMock()
+        ctx.redis_client = None
+        app.state.agent_ctx = ctx
+        return ctx
+
+    @pytest.fixture()
+    async def no_redis_client(self, _no_redis_ctx):
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            yield ac
+
+    @patch("api.main.run_agent", new_callable=AsyncMock)
+    async def test_chat_fallback_to_sync(self, mock_run, no_redis_client: AsyncClient):
+        """When Redis is None, chat auto-falls back to sync (HTTP 200)."""
+        mock_run.return_value = "Sync fallback response."
+
+        resp = await no_redis_client.post(
+            "/api/chat",
+            json={"message": "Hi", "email": "test@test.com"},
+        )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["response"] == "Sync fallback response."
+        assert "correlation_id" in data
+
+    @patch("api.main.run_agent", new_callable=AsyncMock)
+    async def test_gmail_fallback_to_sync(self, mock_run, no_redis_client: AsyncClient):
+        """When Redis is None, Gmail webhook auto-falls back to sync (HTTP 200)."""
+        mock_run.return_value = "Gmail sync fallback."
+
+        resp = await no_redis_client.post(
+            "/api/webhooks/gmail",
+            json={"from_address": "user@gmail.com", "body": "Help"},
+        )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["response"] == "Gmail sync fallback."
+
+    @patch("api.main.run_agent", new_callable=AsyncMock)
+    async def test_whatsapp_fallback_to_sync(self, mock_run, no_redis_client: AsyncClient):
+        """When Redis is None, WhatsApp webhook auto-falls back to sync (HTTP 200)."""
+        mock_run.return_value = "WhatsApp sync fallback."
+
+        resp = await no_redis_client.post(
+            "/api/webhooks/whatsapp",
+            json={"from_address": "+15551234567", "body": "Help"},
+        )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["response"] == "WhatsApp sync fallback."
+
+
+# ---------------------------------------------------------------------------
 # CORS
 # ---------------------------------------------------------------------------
 

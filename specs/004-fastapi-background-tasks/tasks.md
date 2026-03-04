@@ -70,9 +70,9 @@
 
 ### Implementation
 
-- [ ] T015 [US4] Add `sync: bool = Query(False)` parameter to `POST /api/chat` endpoint in `api/main.py` — when `True`, skip background task: await `run_agent()` directly and return `ChatResponse` with HTTP 200.
-- [ ] T016 [US4] Add graceful fallback logic in `api/main.py` — if `ctx.redis_client is None`, force sync mode regardless of `sync` parameter. Log a warning when falling back. Apply same fallback to webhook endpoints (always sync when no Redis).
-- [ ] T017 [US4] Add sync mode and fallback tests in `tests/test_api/test_main.py` — test `?sync=true` returns HTTP 200 with `ChatResponse`, test Redis-None fallback returns HTTP 200 with `ChatResponse`, test default (no `?sync`) returns HTTP 202 with `JobAccepted`.
+- [x] T015 [US4] Add `sync: bool = Query(False)` parameter to `POST /api/chat` endpoint in `api/main.py` — when `True`, skip background task: await `run_agent()` directly and return `ChatResponse` with HTTP 200.
+- [x] T016 [US4] Add graceful fallback logic in `api/main.py` — if `ctx.redis_client is None`, force sync mode regardless of `sync` parameter. Log a warning when falling back. Apply same fallback to webhook endpoints (always sync when no Redis).
+- [x] T017 [US4] Add sync mode and fallback tests in `tests/test_api/test_main.py` — test `?sync=true` returns HTTP 200 with `ChatResponse`, test Redis-None fallback returns HTTP 200 with `ChatResponse`, test default (no `?sync`) returns HTTP 202 with `JobAccepted`.
 
 **Checkpoint**: Developer escape hatch works. System degrades gracefully without Redis.
 
@@ -82,8 +82,8 @@
 
 **Purpose**: Full suite regression and manual validation
 
-- [ ] T018 Run full test suite (`pytest tests/ -v`) — verify ALL existing tests pass + ALL new tests pass
-- [ ] T019 Run quickstart.md manual validation — test async flow (POST chat → poll job), sync mode (`?sync=true`), and graceful fallback (stop Redis → verify sync fallback)
+- [x] T018 Run full test suite (`pytest tests/ -v`) — verify ALL existing tests pass + ALL new tests pass
+- [x] T019 Run quickstart.md manual validation — test async flow (POST chat → poll job), sync mode (`?sync=true`), and graceful fallback (stop Redis → verify sync fallback)
 
 ---
 
