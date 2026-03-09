@@ -1,11 +1,16 @@
-![Python 3.12+](https://img.shields.io/badge/python-3.12+-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)
-![Next.js 16](https://img.shields.io/badge/Next.js-16-000000.svg?logo=next.js&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI_Agents_SDK-0.0.16+-412991.svg?logo=openai&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1.svg?logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-caching-DC382D.svg?logo=redis&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-258%20passing-brightgreen.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+<div align="center">
+
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-000000.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![OpenAI Agents SDK](https://img.shields.io/badge/OpenAI_Agents_SDK-0.0.16+-412991.svg?logo=openai&logoColor=white)](https://github.com/openai/openai-agents-python)
+[![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1.svg?logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
+[![Redis](https://img.shields.io/badge/Redis-caching-DC382D.svg?logo=redis&logoColor=white)](https://redis.io/)
+[![CI](https://github.com/jawwad-ali/crm-digital-FTE/actions/workflows/ci.yml/badge.svg)](https://github.com/jawwad-ali/crm-digital-FTE/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-258%20passing-brightgreen.svg)](#testing)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+</div>
 
 # CRM Digital FTE — AI Customer Success Agent
 
@@ -13,11 +18,26 @@
 
 ---
 
+## Table of Contents
+
+- [What is this?](#what-is-this)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [API Endpoints](#api-endpoints)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
 ## What is this?
 
 CRM Digital FTE is a full-stack **AI-powered customer success platform** that automates multi-channel support. When a customer sends a message through the web form, Gmail, or WhatsApp, the AI agent:
 
-1. **Identifies the customer** — finds or creates a customer record
+1. **Identifies the customer** — finds or creates a customer record in PostgreSQL
 2. **Creates a support ticket** — categorizes and prioritizes automatically
 3. **Searches the knowledge base** — uses OpenAI embeddings + pgvector cosine similarity for semantic search
 4. **Responds intelligently** — adapts tone per channel (formal for email, conversational for WhatsApp)
@@ -26,7 +46,7 @@ CRM Digital FTE is a full-stack **AI-powered customer success platform** that au
 The system processes requests **asynchronously** via background tasks with Redis job polling, falling back to synchronous mode gracefully when Redis is unavailable.
 
 <p align="center">
-  <img src="image.png" alt="Support Center Landing Page" width="700">
+  <img src="support-center-screenshot.png" alt="CRM Digital FTE — AI Customer Support Center Web Form Screenshot" width="700">
 </p>
 
 ---
@@ -175,9 +195,11 @@ crm-digital-FTE/
 │       └── lib/               # API client, types
 ├── database/
 │   └── migrations/            # Schema + KB seed data
-├── tests/                     # 177 backend tests
-├── specs/                     # Feature specifications (001–005)
-└── docs/                      # Architecture docs
+├── tests/                     # 177 backend tests (pytest)
+├── docs/
+│   ├── hackathon-spec.md      # Full project specification
+│   └── scaling-notes.md       # Production scaling guide
+└── specs/                     # Feature specs (001–005)
 ```
 
 ---
@@ -219,7 +241,7 @@ All tests use mocks (no real database, Redis, or OpenAI calls required):
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, code style guidelines, and the PR process.
 
-If this project helps you, consider giving it a star — it helps others discover it too.
+If this project helps you, consider giving it a **star** — it helps others discover it too.
 
 ---
 

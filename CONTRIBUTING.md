@@ -46,6 +46,10 @@ cd web && npm test
 - **TypeScript**: React hooks, `'use client'` for interactive components
 - **General**: no hardcoded secrets, environment variables for all config
 
+## Finding Your First Contribution
+
+Look for issues labeled [`good first issue`](https://github.com/jawwad-ali/crm-digital-FTE/labels/good%20first%20issue) — these are scoped, well-documented tasks ideal for new contributors.
+
 ## Branch Naming
 
 Feature branches follow the pattern: `NNN-feature-name` (e.g., `005-web-support-form`).
@@ -62,13 +66,13 @@ Feature branches follow the pattern: `NNN-feature-name` (e.g., `005-web-support-
 We use descriptive commit messages with emoji prefixes:
 
 ```
-feat: New feature
-fix:  Bug fix
-test: Tests
-docs: Documentation
-refactor: Code refactoring
+🚀 feat: New feature
+🐛 fix:  Bug fix
+✅ test: Tests
+📝 docs: Documentation
+♻️ refactor: Code refactoring
 ```
 
 ## Questions?
 
-Open an issue or start a discussion — we're happy to help.
+Open an [issue](https://github.com/jawwad-ali/crm-digital-FTE/issues) or start a discussion — we're happy to help.
