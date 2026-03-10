@@ -19,8 +19,8 @@
 
 **Purpose**: Container ignore files to keep images lean
 
-- [ ] T001 Create .dockerignore at repo root (exclude .venv, node_modules, .git, __pycache__, .env)
-- [ ] T002 [P] Create web/.dockerignore (exclude node_modules, .next, .env.local)
+- [x] T001 Create .dockerignore at repo root (exclude .venv, node_modules, .git, __pycache__, .env)
+- [x] T002 [P] Create web/.dockerignore (exclude node_modules, .next, .env.local)
 
 ---
 

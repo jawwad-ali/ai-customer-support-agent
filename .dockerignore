@@ -1,0 +1,56 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Node.js / Next.js (web/ has its own Dockerfile)
+node_modules/
+.next/
+out/
+web/node_modules/
+web/.next/
+
+# Git
+.git/
+.gitignore
+
+# Environment and secrets
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+*.tsbuildinfo
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Kubernetes manifests (not needed in image)
+k8s/
+
+# Specs and docs (not needed in image)
+specs/
+docs/
+.specify/
+history/
+*.md
+
+# Claude Code
+.claude/

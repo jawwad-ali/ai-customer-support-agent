@@ -1,0 +1,30 @@
+# Dependencies (reinstalled in container)
+node_modules/
+
+# Build output (rebuilt in container)
+.next/
+out/
+
+# Environment and secrets
+.env
+.env.*
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+*.tsbuildinfo
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Docs
+*.md
