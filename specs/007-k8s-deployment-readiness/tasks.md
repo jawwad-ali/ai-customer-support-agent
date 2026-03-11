@@ -30,9 +30,9 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Create Dockerfile at repo root — multi-stage Python 3.12-slim build, install deps with uv, copy source, run uvicorn on port 8000
-- [ ] T004 [P] Create web/Dockerfile — multi-stage node:22-alpine build, npm ci, next build, next start on port 3000
-- [ ] T005 [P] Create database/migrations/init.sh — run 001_initial_schema.sql via psql, then optionally run 002_seed_knowledge_base.py if OPENAI_API_KEY is set
+- [x] T003 Create Dockerfile at repo root — multi-stage Python 3.12-slim build, install deps with uv, copy source, run uvicorn on port 8000
+- [x] T004 [P] Create web/Dockerfile — multi-stage node:22-alpine build, npm ci, next build, next start on port 3000
+- [x] T005 [P] Create database/migrations/init.sh — run 001_initial_schema.sql via psql, then optionally run 002_seed_knowledge_base.py if OPENAI_API_KEY is set
 
 **Checkpoint**: All 3 container images buildable — `docker build` succeeds for API and web
 
