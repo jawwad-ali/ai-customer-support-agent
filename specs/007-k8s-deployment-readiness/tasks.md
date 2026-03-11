@@ -80,9 +80,9 @@
 
 ### Implementation for User Story 5
 
-- [ ] T010 [US5] Create k8s/namespace.yml — define `crm` namespace
-- [ ] T011 [P] [US5] Create k8s/configmap.yml — crm-config with keys: OPENAI_MODEL, REDIS_URL, NEXT_PUBLIC_API_URL per data-model.md
-- [ ] T012 [P] [US5] Create k8s/secret.yml — crm-secrets placeholder with keys: OPENAI_API_KEY, POSTGRES_PASSWORD (base64 encoded placeholders, real values created via kubectl)
+- [x] T010 [US5] Create k8s/namespace.yml — define `crm` namespace
+- [x] T011 [P] [US5] Create k8s/configmap.yml — crm-config with keys: OPENAI_MODEL, REDIS_URL, NEXT_PUBLIC_API_URL per data-model.md
+- [x] T012 [P] [US5] Create k8s/secret.yml — crm-secrets placeholder with keys: OPENAI_API_KEY, POSTGRES_PASSWORD (base64 encoded placeholders, real values created via kubectl)
 
 **Checkpoint**: K8s namespace + config resources ready for deployment manifests
 

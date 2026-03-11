@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crm-config
+  namespace: crm
+  labels:
+    app: crm
+    component: config
+    part-of: crm
+data:
+  OPENAI_MODEL: "gpt-4o"
+  REDIS_URL: "redis://redis:6379"
+  NEXT_PUBLIC_API_URL: "http://api:8000"
