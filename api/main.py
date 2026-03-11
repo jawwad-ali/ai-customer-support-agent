@@ -156,6 +156,52 @@ async def health():
     return {"status": "ok"}
 
 
+@app.get("/health/live")
+async def health_live():
+    """Liveness probe — is the process alive? No dependency checks."""
+    return {"status": "alive"}
+
+
+@app.get("/health/ready")
+async def health_ready(request: Request):
+    """Readiness probe — can this instance serve traffic?
+
+    Checks asyncpg pool and Redis connectivity.
+    Returns 200 if all dependencies are connected, 503 otherwise.
+    """
+    db_status = "disconnected"
+    redis_status = "disconnected"
+
+    ctx = request.app.state.agent_ctx
+
+    # Check database (asyncpg pool)
+    try:
+        await ctx.db_pool.fetchval("SELECT 1")
+        db_status = "connected"
+    except Exception:
+        pass
+
+    # Check Redis
+    try:
+        if ctx.redis_client is not None:
+            await ctx.redis_client.ping()
+            redis_status = "connected"
+    except Exception:
+        pass
+
+    is_ready = db_status == "connected" and redis_status == "connected"
+    status_code = 200 if is_ready else 503
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": "ready" if is_ready else "not_ready",
+            "database": db_status,
+            "redis": redis_status,
+        },
+    )
+
+
 @app.post("/api/chat")
 async def chat(
     req: ChatRequest,
