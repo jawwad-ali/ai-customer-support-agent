@@ -98,11 +98,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Create k8s/postgres-pvc.yml (1Gi), k8s/postgres-deployment.yml (postgres:16, pgvector init, resource limits 100m-500m CPU / 256Mi-512Mi RAM), k8s/postgres-service.yml (ClusterIP :5432)
-- [ ] T014 [P] [US2] Create k8s/redis-pvc.yml (512Mi), k8s/redis-deployment.yml (redis:7-alpine with AOF persistence, resource limits 50m-200m CPU / 128Mi-256Mi RAM), k8s/redis-service.yml (ClusterIP :6379)
-- [ ] T015 [P] [US2] Create k8s/api-deployment.yml — init container runs database/migrations/init.sh, liveness probe /health/live (period 10s, failure 3), readiness probe /health/ready (period 5s, failure 2), resource limits 100m-500m CPU / 256Mi-512Mi RAM, envFrom crm-config + crm-secrets
-- [ ] T016 [P] [US2] Create k8s/api-service.yml — ClusterIP on port 8000
-- [ ] T017 [P] [US2] Create k8s/web-deployment.yml (resource limits 50m-200m CPU / 128Mi-256Mi RAM) and k8s/web-service.yml (NodePort on port 3000 for external access)
+- [x] T013 [P] [US2] Create k8s/postgres-pvc.yml (1Gi), k8s/postgres-deployment.yml (postgres:16, pgvector init, resource limits 100m-500m CPU / 256Mi-512Mi RAM), k8s/postgres-service.yml (ClusterIP :5432)
+- [x] T014 [P] [US2] Create k8s/redis-pvc.yml (512Mi), k8s/redis-deployment.yml (redis:7-alpine with AOF persistence, resource limits 50m-200m CPU / 128Mi-256Mi RAM), k8s/redis-service.yml (ClusterIP :6379)
+- [x] T015 [P] [US2] Create k8s/api-deployment.yml — init container runs database/migrations/init.sh, liveness probe /health/live (period 10s, failure 3), readiness probe /health/ready (period 5s, failure 2), resource limits 100m-500m CPU / 256Mi-512Mi RAM, envFrom crm-config + crm-secrets
+- [x] T016 [P] [US2] Create k8s/api-service.yml — ClusterIP on port 8000
+- [x] T017 [P] [US2] Create k8s/web-deployment.yml (resource limits 50m-200m CPU / 128Mi-256Mi RAM) and k8s/web-service.yml (NodePort on port 3000 for external access)
 - [ ] T018 [US2] Verify: `kubectl apply -f k8s/` deploys all resources, all pods reach Ready within 120s
 - [ ] T019 [US2] Verify: kill an API pod → auto-restarts within 30s, serves requests again
 - [ ] T020 [US2] Verify: restart postgres pod → customer data persists (PVC intact)

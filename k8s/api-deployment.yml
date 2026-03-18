@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: crm
+  labels:
+    app: api
+    component: backend
+    part-of: crm
+spec:
+  replicas: 1                          # HPA overrides this
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0                # Zero-downtime deploys
+  template:
+    metadata:
+      labels:
+        app: api
+        component: backend
+        part-of: crm
+    spec:
+      # ---------------------------------------------------------------
+      # Init container: run database schema migration before API starts.
+      # Uses asyncpg (already in the API image) instead of psql (not
+      # available in python:3.12-slim). Idempotent — safe on every start.
+      # ---------------------------------------------------------------
+      initContainers:
+        - name: db-migrate
+          image: crm-api:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - -c
+            - |
+              import asyncio, asyncpg, os, pathlib
+
+              async def migrate():
+                  url = os.environ["DATABASE_URL"]
+                  sql = pathlib.Path("database/migrations/001_initial_schema.sql").read_text()
+                  conn = await asyncpg.connect(url)
+                  try:
+                      await conn.execute(sql)
+                      print("[db-migrate] Schema migration complete.")
+                  finally:
+                      await conn.close()
+
+              asyncio.run(migrate())
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crm-secrets
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/crm"
+
+      # ---------------------------------------------------------------
+      # Main container: FastAPI served by uvicorn
+      # ---------------------------------------------------------------
+      containers:
+        - name: api
+          image: crm-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+
+          # Liveness: is the process alive? No dependency checks.
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness: can this instance serve traffic? Checks DB + Redis.
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 2
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          envFrom:
+            - configMapRef:
+                name: crm-config
+            - secretRef:
+                name: crm-secrets
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crm-secrets
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql://postgres:$(POSTGRES_PASSWORD)@postgres:5432/crm"
+
+      restartPolicy: Always
