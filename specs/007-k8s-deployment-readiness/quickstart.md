@@ -12,8 +12,8 @@
 
 ```bash
 # 1. Clone and configure
-git clone https://github.com/jawwad-ali/crm-digital-FTE.git
-cd crm-digital-FTE
+git clone https://github.com/jawwad-ali/ai-customer-support-agent.git
+cd ai-customer-support-agent
 cp .env.example .env
 # Edit .env — set OPENAI_API_KEY (required)
 
