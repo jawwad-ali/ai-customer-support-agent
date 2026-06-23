@@ -6,6 +6,8 @@
 
 If this project is useful, please consider giving it a **star** — it helps others discover it.
 
+📖 **Full case study:** [alijawwad.com/projects/ai-support →](https://www.alijawwad.com/projects/ai-support)
+
 <div align="center">
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/downloads/)
